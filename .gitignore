@@ -1,0 +1,8 @@
+config.yaml
+secrets.yaml
+full.yaml
+jupyterhub/
+jupyterhub-*.tgz
+.DS_Store
+*.swp
+kubeconfig.yaml

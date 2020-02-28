@@ -1,0 +1,154 @@
+# Use this to overwrite templates from https://github.com/jupyterhub/jupyterhub/tree/master/share/jupyterhub/templates
+# See https://github.com/jupyterhub/zero-to-jupyterhub-k8s/issues/1266
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hub-templates
+data:
+  # NOTE: helm will render content inside {{` here `}} as a
+  # string no matter what curly braces etc. it will find there.
+  # So if this yaml is first to be rendered by helm before parsed
+  # as a k8s resource, you can wrap the entire section below with
+  # that. Like below for example:
+  # {{`
+  # page.html |
+  #   my template content with lots of curly braces that could conflict with
+  #   helm rendering...
+  # `}}
+  login.html: |
+    {% extends "page.html" %}
+    {% if announcement_login %}
+      {% set announcement = announcement_login %}
+    {% endif %}
+
+    {% block login_widget %}
+    {% endblock %}
+
+    {% block main %}
+
+    {% block login %}
+    <div id="login-main" class="container">
+    {% if custom_html %}
+    {{ custom_html | safe }}
+    {% elif login_service %}
+    <div class="service-login">
+    <h1>Open AiiDA lab demonstrator</h1>
+      <p>
+        <i>
+       Manage your materials science calculations with <a href="http://www.aiida.net">AiiDA</a> in the cloud.
+        </i>
+      </p>
+
+      <a role="button" class='btn btn-jupyter btn-lg' href='{{authenticator_login_url}}'>
+        Sign in with EGI Checkin
+      </a>
+      <br/><br/>
+      <p>
+        See our <a href="https://www.youtube.com/playlist?list=PL19kfLn4sO_8O_yQTL6KK0nC2adrrLqmi">Youtube playlist</a> for an overview of the AiiDA Lab.
+      </p>
+
+     <p>
+       This AiiDA lab demonstrator is part of the <a href="https://www.materialscloud.org" target="_blank">Materials Cloud</a> and operated by the <a href="https://www.materialscloud.org/team" target="_blank">Materials Cloud team</a>.
+     </p>
+
+     <p>
+      Please note that this demonstrator comes with <i>no up-time or backup guarantees</i>.<br/>
+      For more information and feedback, drop us a line at <a href="mailto:aiidalab@materialscloud.org">aiidalab@materialscloud.org</a>.
+     </p>
+    </div>
+    {% else %}
+    <form action="{{login_url}}?next={{next}}" method="post" role="form">
+      <div class="auth-form-header">
+        Sign in
+      </div>
+      <div class='auth-form-body'>
+
+        <p id='insecure-login-warning' class='hidden'>
+        Warning: JupyterHub seems to be served over an unsecured HTTP connection.
+        We strongly recommend enabling HTTPS for JupyterHub.
+        </p>
+
+        {% if login_error %}
+        <p class="login_error">
+          {{login_error}}
+        </p>
+        {% endif %}
+        <label for="username_input">Username:</label>
+        <input
+          id="username_input"
+          type="text"
+          autocapitalize="off"
+          autocorrect="off"
+          class="form-control"
+          name="username"
+          val="{{username}}"
+          tabindex="1"
+          autofocus="autofocus"
+        />
+        <label for='password_input'>Password:</label>
+        <input
+          type="password"
+          class="form-control"
+          name="password"
+          id="password_input"
+          tabindex="2"
+        />
+
+        <input
+          type="submit"
+          id="login_submit"
+          class='btn btn-jupyter'
+          value='Sign In'
+          tabindex="3"
+        />
+      </div>
+    </form>
+    {% endif %}
+    </div>
+    {% endblock login %}
+
+    {% endblock %}
+
+    {% block script %}
+    {{ super() }}
+    <script>
+    if (window.location.protocol === "http:") {
+      // unhide http warning
+      var warning = document.getElementById('insecure-login-warning');
+      warning.className = warning.className.replace(/\bhidden\b/, '');
+    }
+    </script>
+
+    {% endblock %}
+#spawn.html: |
+#  {% extends "page.html" %}
+#  {% if announcement_spawn %}
+#    {% set announcement = announcement_spawn %}
+#  {% endif %}
+#
+#  {% block main %}
+#
+#  <div class="container">
+#    {% block heading %}
+#    <div class="row text-center">
+#      <h1>Server Options</h1>
+#    </div>
+#    {% endblock %}
+#    <div class="row col-sm-offset-2 col-sm-8">
+#      {% if for_user and user.name != for_user.name -%}
+#        <p>Spawning server for {{ for_user.name }}</p>
+#      {% endif -%}
+#      {% if error_message -%}
+#        <p class="spawn-error-msg text-danger">
+#          Error: {{error_message}}
+#        </p>
+#      {% endif %}
+#      <form enctype="multipart/form-data" id="spawn_form" action="{{url}}" method="post" role="form">
+#        {{spawner_options_form | safe}}
+#        <br>
+#        <input type="submit" value="Start server" class="btn btn-jupyter form-control">
+#      </form>
+#    </div>
+#  </div>
+#
+#  {% endblock %}

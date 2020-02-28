@@ -1,0 +1,97 @@
+proxy:
+    secretToken: {{ secret_token }}
+
+singleuser:
+  image:
+    name: aiidalab/aiidalab-docker-stack
+    #tag: latest
+    tag: 20.02.2
+    pullPolicy: Always
+  fsGid: 1000
+  cmd: /sbin/my_my_init
+  extraEnv:
+    NB_USER: "aiida"
+    NB_UID: 1000
+    NB_GID: 1000
+  storage:
+    homeMountPath: "/home/aiida"
+    dynamic:
+      storageClass: cinder-csi
+  memory:
+    limit: 9G
+    guarantee: 3G
+  cpu:
+    limit: 2.0
+    guarantee: .5
+  startTimeout: 180
+
+auth:
+  custom:
+    className: firstuseauthenticator.FirstUseAuthenticator
+    config:
+      create_users: True
+
+## OIDC example 
+#  type: custom
+#  custom:
+#    className: oauthenticator.generic.GenericOAuthenticator
+#    config:
+#      client_id: "{{ oauth_client_id }}"
+#      client_secret: "{{ oauth_client_secret }}"
+#      username_key: "email"
+#      token_url: "{{ oauth_host }}/token"
+#      userdata_url: "{{ oauth_host }}/userinfo"
+#      scope: ["openid", "profile", "email", "eduperson_scoped_affiliation", "eduperson_entitlement"]
+
+hub:
+#  extraEnv:
+#    OAUTH2_AUTHORIZE_URL: "{{ oauth_host }}/authorize"
+#    OAUTH2_TOKEN_URL: "{{ oauth_host }}/token"
+#    OAUTH_CALLBACK_URL: "{{ jh_host }}/hub/oauth_callback"
+  db:
+    pvc:
+      storageClassName: cinder-csi
+  extraConfig: |
+    c.KubeSpawner.http_timeout = 120
+    # phusion init system needs to run as root
+    c.KubeSpawner.uid = 0
+    # Setting the gid was needed to fix 
+    # https://github.com/aiidalab/aiidalab-docker-stack/issues/20
+    c.KubeSpawner.gid = 1000
+
+    # insert template path for custom login template
+    c.JupyterHub.template_paths.insert(0, "/etc/jupyterhub/templates")
+
+#    # overwrite logout handler to also log out of main Materials Cloud site
+#    # https://github.com/jupyterhub/jupyterhub/blob/master/jupyterhub/handlers/login.py#L14
+#    import urllib.parse
+#    def logout_handler(self):
+#        user = self.get_current_user()
+#        if user:
+#            self.log.info("User logged out: %s", user.name)
+#            self.clear_login_cookie()
+#            self.statsd.incr('logout')
+#        next = urllib.parse.quote("{{ jh_host }}")
+#        url = "{{ oauth_host }}/logout?next="+next
+#        self.redirect(url, permanent=False)
+#    
+#    from jupyterhub.handlers.login import LogoutHandler
+#    LogoutHandler.get = logout_handler
+
+  extraVolumes:
+    ## Make the hub pod be able to access a ConfigMap volume
+    - name: hub-templates
+      configMap:
+        name: hub-templates
+  extraVolumeMounts:
+    ## Make the hub pod hub container mount that ConfigMap volume
+    - mountPath: /etc/jupyterhub/templates
+      name: hub-templates
+
+# removing inactive pods (=no response from the user's browser).
+cull:
+  enabled: true
+  # timeout = 24h
+  timeout: 86400
+  # check every hour
+  every: 3600
