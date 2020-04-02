@@ -1,5 +1,5 @@
 proxy:
-    secretToken: {{ secret_token }}
+    secretToken: "{{ secret_token }}"
 
 singleuser:
   image:
@@ -27,27 +27,11 @@ singleuser:
 
 auth:
   custom:
-    className: firstuseauthenticator.FirstUseAuthenticator
+    className: marketplace_oauthenticator.MarketPlaceOAuthenticator
     config:
       create_users: True
 
-## OIDC example 
-#  type: custom
-#  custom:
-#    className: oauthenticator.generic.GenericOAuthenticator
-#    config:
-#      client_id: "{{ oauth_client_id }}"
-#      client_secret: "{{ oauth_client_secret }}"
-#      username_key: "email"
-#      token_url: "{{ oauth_host }}/token"
-#      userdata_url: "{{ oauth_host }}/userinfo"
-#      scope: ["openid", "profile", "email", "eduperson_scoped_affiliation", "eduperson_entitlement"]
-
 hub:
-#  extraEnv:
-#    OAUTH2_AUTHORIZE_URL: "{{ oauth_host }}/authorize"
-#    OAUTH2_TOKEN_URL: "{{ oauth_host }}/token"
-#    OAUTH_CALLBACK_URL: "{{ jh_host }}/hub/oauth_callback"
   db:
     pvc:
       storageClassName: cinder-csi
@@ -61,22 +45,12 @@ hub:
 
     # insert template path for custom login template
     c.JupyterHub.template_paths.insert(0, "/etc/jupyterhub/templates")
+    #c.JupyterHub.authenticator_class = (
+        #'<module_containing>.MarketplaceOAuthenticator')
 
-#    # overwrite logout handler to also log out of main Materials Cloud site
-#    # https://github.com/jupyterhub/jupyterhub/blob/master/jupyterhub/handlers/login.py#L14
-#    import urllib.parse
-#    def logout_handler(self):
-#        user = self.get_current_user()
-#        if user:
-#            self.log.info("User logged out: %s", user.name)
-#            self.clear_login_cookie()
-#            self.statsd.incr('logout')
-#        next = urllib.parse.quote("{{ jh_host }}")
-#        url = "{{ oauth_host }}/logout?next="+next
-#        self.redirect(url, permanent=False)
-#    
-#    from jupyterhub.handlers.login import LogoutHandler
-#    LogoutHandler.get = logout_handler
+    c.MarketplaceOAuthenticator.client_id = "{{ oauth_client_id }}"
+    c.MarketplaceOAuthenticator.client_secret = "{{ oauth_client_secret }}"
+    c.MarketplaceOAuthenticator.tls_verify = False
 
   extraVolumes:
     ## Make the hub pod be able to access a ConfigMap volume

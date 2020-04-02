@@ -1,2 +1,3 @@
-j2cli
+j2cli[yaml]
 ruamel.yaml
+HiYaPyCo==0.4.16
