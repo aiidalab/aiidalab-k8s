@@ -6,3 +6,5 @@ jupyterhub-*.tgz
 .DS_Store
 *.swp
 kubeconfig.yaml
+kubeconfig_*
+__pycache__/
