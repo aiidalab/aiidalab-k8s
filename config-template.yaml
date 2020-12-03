@@ -1,5 +1,5 @@
 proxy:
-    secretToken: {{ secret_token }}
+    secretToken: "{{ secret_token }}"
 
 singleuser:
   image:
@@ -11,8 +11,8 @@ singleuser:
   cmd: /sbin/my_my_init
   extraEnv:
     NB_USER: "aiida"
-    NB_UID: 1000
-    NB_GID: 1000
+    NB_UID: "1000"
+    NB_GID: "1000"
   storage:
     homeMountPath: "/home/aiida"
     dynamic:
