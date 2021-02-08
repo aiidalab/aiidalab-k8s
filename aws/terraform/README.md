@@ -1,8 +1,10 @@
-# PANGEO Terraform Deploy
+# AiIDAlab Terraform Deploy
+
+*Based on https://github.com/pangeo-data/terraform-deploy/.*
 
 ## Introduction
 
-This repo houses an opinionated deployment of PANGEO-style
+This repo houses an opinionated deployment of AiiDAlab
 JupyterHub-ready infrastructure with
 [Terraform](https://www.terraform.io/). 
 
@@ -30,7 +32,7 @@ following tools installed:
 You will also need this repo. You can get it with:
 
 ```
-git clone https://github.com/pangeo-data/terraform-deploy.git
+git clone git@github.com:aiidalab/aiidalab-k8s.git
 cd terraform-deploy/aws-examples/blog-post/
 ```
 
