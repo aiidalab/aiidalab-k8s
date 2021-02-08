@@ -15,6 +15,13 @@ The guide to deploy this JupyterHub-ready infrastructure can be summarized as:
 
 ## Deployment Instructions
 
+The following instructions were tested with:
+
+ - Terraform v0.13.5
+ - aws-cli/2.1.3 Python/3.7.3 Linux/5.4.0-60-generic exe/x86_64.ubuntu.18
+ - kubectl v1.20
+ - helm v.3.5.2
+
 ### Install Terraform, dependencies, and this GitHub repo
 
 In order to deploy the configuration in this repo, you'll need the following tools installed:
