@@ -1,17 +1,19 @@
 # AiIDAlab Terraform Deploy
 
-*Based on https://github.com/pangeo-data/terraform-deploy/.*
+*Based on https://github.com/pangeo-data/terraform-deploy.*
 
 ## Introduction
 
-This repo houses an opinionated deployment of AiiDAlab JupyterHub-ready infrastructure with [Terraform](https://www.terraform.io/).
+This repository provides instructions and configuration files to create an AiiDAlab (JupyterHub)-ready kubernetes cluster on Amazon Web Services (AWS) infrastructure with [Terraform](https://www.terraform.io).
 
-This particular branch is presented for use with the Medium blog post [Deploying JupyterHub-Ready Infrastructure with Terraform on AWS](https://medium.com/pangeo/terraform-jupyterhub-aws-34f2b725f4fd).
 The guide to deploy this JupyterHub-ready infrastructure can be summarized as:
-- Download Terraform, its dependencies, and the repo
-- Configure a few settings for the infrastructure and for the AWS CLI
-- Deploy the infrastructure using Terraform commands
+- Download Terraform, its dependencies, and the repository.
+- Configure a few settings for the infrastructure and for the AWS CLI.
+- Deploy the infrastructure using Terraform commands.
 
+Important: This document describes how to create a kubernetes cluster suitable to deploy an instance of AiiDAlab.
+After deploying the infrastructure, you still need to install AiiDAlab on the cluster.
+For that, follow the instructions provided in the README.md file located at the root of this repository.
 
 ## Deployment Instructions
 
@@ -24,24 +26,19 @@ The following instructions were tested with:
 
 ### Install Terraform, dependencies, and this GitHub repo
 
-In order to deploy the configuration in this repo, you'll need the following tools installed:
+In order to deploy the configuration in this repo, you need to have the following tools installed within your environment:
 
 - [Terraform](https://www.terraform.io/downloads.html)
 - [AWS CLI](https://aws.amazon.com/cli/)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - [Helm](https://helm.sh/docs/intro/install/)
 
-You will also need this repo.
-You can get it with:
+You will also need to clone this repository, e.g., with:
 
 ```
 git clone git@github.com:aiidalab/aiidalab-k8s.git
-cd terraform-deploy/aws-examples/blog-post/
+cd aiidalab-k8s/aws/terraform
 ```
-
-You will notice there are two folders here, `aws` and `aws-creds`.
-Terraform will interact with each directory separately.
-We can now set up some credentials before we deploy the infrastructure.
 
 ### Configuration
 
@@ -50,12 +47,10 @@ We can now set up some credentials before we deploy the infrastructure.
 You need to have the `aws` CLI configured to run correctly from your local machine - terraform will just read from the same source.
 The [documentation on configuring AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) should help.
 
-This repo provides the `aws-creds` folder in case you do not have admin permissions or want to follow the principle of least privilege.
-In order to run the Terraform commands in the `aws` folder, we will use the minimal policy set defined at the bottom of `iam.tf`.
-By default (as in, what is uncommented), the folder gives you a new user named `terraform-bot` with policy attachments for the minimal policy set and EFS permissions.
-
-If you want to experiment with other ways to enable the policies you can try!
-Some of them are present (but commented out) in the same file.
+The `aws-creds` configuration directory is used to setup a `terraform-bot` user that has exactly tailored permissions to setup the kubernetes infrastructure.
+It is not strictly necessary to use the bot user to create the cluster, however it is recommended to follow the principle of least privilege and instructions following are going to assume the use of the bot user.
+By default (as in, what is uncommented), the folder will lead to the creation of a new user named `terraform-bot` with policy attachments for the minimal policy set and EFS permissions.
+Those policies are defined in the `iam.tf` file.
 
 If you want to create this user, go into `aws-creds/iam.tfvars` and make sure the value of `profile` is the correct awscli profile you want to use.
 Then, run the following:
@@ -69,6 +64,8 @@ terraform apply -var-file=iam.tfvars
 Terraform will show the plan to create the IAM policy, an IAM user, and the attachment of two policies onto the user.
 Confirm the apply command and Terraform will let you know when it's finished.
 
+Note: The AWS profile used to execute this plan will require permisions to create new users, please review AWS documentation regarding the Identity and Access Management (IAM) in case of issues relating to lack of permissions.
+
 You will then have to configure `terraform-bot`'s credentials in the AWS Console.
 Go and generate access keys for the user, then put them into your command line with
 
@@ -80,74 +77,60 @@ Later, you will tell Terraform to use this profile when running commands so that
 
 #### Configure your Infrastructure
 
-The terraform deployment needs several variable names set before it can start.
-If you look in `aws/your-cluster.tfvars`, there are four variables present.
-You should input cluster and vpc names.
-You only have to change the region if you want to create resources in a different region.
-Similarly, the profile only needs to be changed if you are not using the `terraform-bot` user from the last step.
+The terraform deployment needs several variable names set before it can start, which are defined in `aws/variables.tf`.
+The variables that should likely be changed for a specific deployment are further specified in the `aws/aiidalab-cluster.tfvars` file.
+Prior to deployment you should adjust it for your needs, e.g., change the region and names most appropriate for your deployment.
+The profile only needs to be changed if you are not using the `terraform-bot` user from the last step.
 
-You can change the name of this file if you want.
-Just keep in mind that the instructions will list it as `<your-cluster>.tfvars` and you will have to type in the new filename that you set.
-A professional deployment should have a more descriptive name, but it isn't necessary here.
-
-There are additional variables you can specify in your `.tfvars` file if you wish.
-The other variables are present in `aws/variables.tf`.
-
-To force Terraform to use the values provided, we will add the flag `-var-file=<your-cluster>.tfvars` with every Terraform command.
-
-The final bit of Terraform configuration is run with `terraform init`.
-This makes Terraform check all of the files in the working directory and see if it needs to download anything in order to work properly.
-Here, these downloads are module and provider blocks.
-If you attempt to run other commands before this, Terraform will prompt you to initialize the working directory.
-
-Make sure you are in the `aws` folder, then run
-
+After adjusting all variables and within the `aws/` folder, run
 ```
 terraform init
 ```
+to configure terraform for deployment.
+This will download all required modules and run a basic consistency check on the configuration.
 
 ### Infrastructure Deployment
 
-NOTE: Creating these resources will cost your AWS account money.
-This cluster configuration has cost me under $5 per day running the cluster, vpc, and core node.
+WARNING: THE FOLLOWING STEPS WILL CREATE POTENTIALLY EXPENSIVE RESOURCES WITHIN YOUR AWS INFRASTRCTURE!
+DO NOT PROCEED UNLESS YOU FULLY UNDERSTAND WHAT RESOURCES ARE GOING TO BE CREATED, HOW TO MONITOR THEM, AND MOST IMPORTANTLY HOW TO DESTROY THEM!
 
 #### First-Time Deployment
 
-If you have configured the `awscli` profile you want to use and input the values you like into your `.tfvars` file, then you are ready to deploy the infrastructure! Running the command below will first generate a plan as Terraform validates the configuration. The plan is a list of the lowest-level resources it can give you. We use the modules so we don't have to look at all the low-level resources all the time (that's a lot to look at), but it is good to look at them at least once to make sure you understand everything you are creating.
-
-You can take a look at the 63 resources if you like, but at the end of the day, all you need to do to start deploying infrastructure is type `yes` when Terraform prompts you.
-
+After successful initialization, we will create the plan for resource creation with:
 ```
-terraform apply -var-file=<your-cluster>.tfvars
+terraform plan -var-file=aiidalab-cluster.tfvars
 ```
 
-The infrastructure can take 15 minutes or more to create (the EKS cluster takes 9-12 minutes alone).
+The plan is a list of the lowest-level resources it can give you.
+After reviewing the plan (and ensuring that you understand all resources that are going to be created at least on a high level), apply it with:
+```
+terraform apply -var-file=aiidalab-cluster.tfvars
+```
 
-While watching Terraform deploy everything, you may notice that sometimes many resources are created at the same time, but other times only one resource is being created.
-Terraform takes into account resource dependencies and will make sure independent resources are created before dependent ones.
-It will try to deploy as many things at once as possible but will have to wait for certain resources to finish before it can move on.
+The initial setup of the infrastructure will take about 15 min or even more (the EKS cluster alon takes about 10 minutes to be created).
+Terraform will create most resources in parallel unless there are dependencies.
 
-NOTE: Sometimes you will get an error saying the Kubernetes cluster is unreachable.
-This is usually resolved by running the `terraform apply ...` command again.
+NOTE: If the resource creation takes too long, some commands can timeout.
+This issue can usually be resolved by simply running `terraform apply ...` again.
 
-Tons of green output means the deployment was successful! Congratulations!
+The creation of the kubernetes cluster was successful if the `apply` command exits without error.
 
 #### Inspecting the Infrastructure
 
-If you want to take a peek at your cluster, you will need to tell `kubectl` and `Helm` where your cluster is, since Terraform doesn't modify them by default.
-Do this with the following command, filling in values for your deployment.
+To inspect the cluster infrastructure, you will need to configure `kubectl` and `helm`; terraform does not modify the configuration automatically by default.
+To configure kubectl, execute the following command, replacing the values in `<>` with those applicable to your deployment:
 
 ```
-aws eks update-kubeconfig --name=<cluster-name> --region=<region>
---profile=<profile>
+aws eks update-kubeconfig --name=<cluster-name> --region=<region> --profile=<profile>
 ```
 
-Now you should be able to run local commands to inspect the cluster!
-Try the following:
+Now you are able to interact with the kubernetes cluster.
+For example, the following commands should run without error:
 
 ```
 aws eks list-clusters --profile=<profile>
 aws eks describe-cluster --name=<cluster-name> --profile=terraform-bot
+kubectl cluster-info
 kubectl get pods -A
 kubectl get nodes -A
 helm list -A
@@ -156,6 +139,7 @@ helm list -A
 You should be able to see
 - A list of clusters on your account, including the one you just made
 - Information about the cluster you just made
+- Basic information about the kubernetes cluster
 - All of the pods (individual software) present on machines in the
 cluster
 - All of the nodes (actual machines) in the cluster, which should just
@@ -170,7 +154,7 @@ If there were problems with deployment, these commands might fail or give you in
 NOTE: Do not modify AWS resources with the console if you created them with Terraform.
 This can cause unintended problems for Terraform because it can't see the resource changes you made.
 
-If you want to change some of the values or infrastructure, you can fiddle with the `.tf` files and then run `terraform apply -var-file=<your-cluster>.tfvars` again.
+If you want to change some of the values or infrastructure, you can fiddle with the `.tf` files and then run `terraform apply -var-file=aiidalab-cluster.tfvars` again.
 Terraform will compare the new plan to the old plan that you already deployed and see what is has to do to get from one to the other.
 For individual resources, this may be an easy in-place modification, others may have to be destroyed and re-created, and others still may just be different resources, so you delete them and make the replacements.
 Terraform takes care of all of this for you but will show you what it intends to do in the plan it outputs.
@@ -179,24 +163,26 @@ NOTE: If you change the worker group templates and there are existing nodes when
 You will have to manually drain the node by setting the desired number of nodes to 0 in the AWS Console, wait for the nodes to disappear, then set the desired number of nodes to 1 once `terraform apply ...` has finished.
 
 NOTE: Changing the desired number of nodes after the worker group template has been created will not work unless you do so in the AWS Console.
-Terraform doesn't affect that after the worker group template has been created.
+Terraform does not affect that after the worker group template has been created.
 
 #### Tear Down
 
-If you don't want these resources on your account forever (since they cost you money), you can tear it all down with one command per directory.
+It is recommended to uninstall the AiiDAlab cluster installation with helm prior to deleting the resources.
+For that, follow the instructions provided in the README.md file located at the root of this repository.
 
+If you do not want these resources on your account forever (since they cost you money), you can tear it all down with one command per directory.
 Terraform remembers everything it has currently built, so as long as you provide the `.tfvars` file, it will find the resources correctly and remove them in the reverse order that they were built!
 
 Running `terraform destroy ...` will generate a plan similar to `terraform apply ...`, but it will indicate that it is deleting resources, not deploying them.
 Again, you will be prompted to confirm the plan by typing `yes`.
 
 ```
-terraform destroy --var-file=<your-cluster>.tfvars
+terraform destroy --var-file=aiidalab-cluster.tfvars
 ```
 
 The `destroy` command can time out trying to destroy some of the Kubernetes resources, but re-running it usually solves the issue.
 If you put anything on your cluster (besides the `efs-provisioner` and the `cluster-autoscaler`), you should remove it before running `terraform destroy ...`.
-Since Terraform isn't detecting what software is on your cluster (it only knows what it put on the cluster), it doesn't know how to remove it, and that can lead to issues.
+Since Terraform isn't detecting what software is on your cluster (it only knows what it put on the cluster), it does not know how to remove it, and that can lead to issues.
 
 Removing the `terraform-bot` user will require to manually delete the access keys in the AWS Console.
 Then, you can delete the Terraform entries.
