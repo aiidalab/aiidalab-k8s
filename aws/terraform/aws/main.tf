@@ -113,10 +113,10 @@ module "eks" {
       name                    = "user-mixed-demand-spot"
       override_instance_types = ["m5.2xlarge", "m4.2xlarge"]
       spot_instance_pools     = 2
-      on_demand_base_capacity = 10
+      on_demand_base_capacity = 5
       on_demand_percentage_above_base_capacity = 25
       asg_min_size            = 0
-      asg_max_size            = 50
+      asg_max_size            = 5
       asg_desired_capacity    = 0
 
       # Use this to set labels / taints
@@ -149,7 +149,7 @@ module "eks" {
       name                    = "worker-spot"
       override_instance_types = ["r5.2xlarge", "r4.2xlarge"]
       spot_instance_pools     = 2
-      asg_max_size            = 100
+      asg_max_size            = 5
       asg_min_size            = 0
       asg_desired_capacity    = 0
 
