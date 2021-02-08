@@ -19,7 +19,7 @@ For that, follow the instructions provided in the README.md file located at the 
 
 The following instructions were tested with:
 
- - Terraform v0.13.5
+ - Terraform v0.14.6
  - aws-cli/2.1.3 Python/3.7.3 Linux/5.4.0-60-generic exe/x86_64.ubuntu.18
  - kubectl v1.20
  - helm v.3.5.2
