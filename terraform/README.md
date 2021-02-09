@@ -48,7 +48,7 @@ You need to have the `aws` CLI configured to run correctly from your local machi
 The [documentation on configuring AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) should help.
 
 The `aws-creds` configuration directory is used to setup a `terraform-bot` user that has exactly tailored permissions to setup the kubernetes infrastructure.
-It is not strictly necessary to use the bot user to create the cluster, however it is recommended to follow the principle of least privilege and instructions following are going to assume the use of the bot user.
+It is not strictly necessary to use the bot user to create the cluster, however it is recommended to follow the principle of least privilege and the following instructions are going to assume the use of the bot user.
 By default (as in, what is uncommented), the folder will lead to the creation of a new user named `terraform-bot` with policy attachments for the minimal policy set and EFS permissions.
 Those policies are defined in the `iam.tf` file.
 
@@ -107,7 +107,7 @@ After reviewing the plan (and ensuring that you understand all resources that ar
 terraform apply -var-file=aiidalab-cluster.tfvars
 ```
 
-The initial setup of the infrastructure will take about 15 min or even more (the EKS cluster alon takes about 10 minutes to be created).
+The initial setup of the infrastructure will take about 15 min or even more (the EKS cluster alone takes about 10 minutes to be created).
 Terraform will create most resources in parallel unless there are dependencies.
 
 NOTE: If the resource creation takes too long, some commands can timeout.
@@ -115,9 +115,9 @@ This issue can usually be resolved by simply running `terraform apply ...` again
 
 The creation of the kubernetes cluster was successful if the `apply` command exits without error.
 
-#### Inspecting the Infrastructure
+#### Configure kubectl
 
-To inspect the cluster infrastructure, you will need to configure `kubectl` and `helm`; terraform does not modify the configuration automatically by default.
+To inspect and interact with the cluster infrastructure, you will need to configure `kubectl` and `helm`; terraform does not modify the configuration automatically by default.
 To configure kubectl, execute the following command, replacing the values in `<>` with those applicable to your deployment:
 
 ```
@@ -128,8 +128,8 @@ Now you are able to interact with the kubernetes cluster.
 For example, the following commands should run without error:
 
 ```
-aws eks list-clusters --profile=<profile>
-aws eks describe-cluster --name=<cluster-name> --profile=terraform-bot
+aws eks list-clusters --region=<region> --profile=<profile>
+aws eks describe-cluster --region=<region> --profile=<profile> --name=<cluster-name>
 kubectl cluster-info
 kubectl get pods -A
 kubectl get nodes -A
