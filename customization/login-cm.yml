@@ -32,7 +32,7 @@ data:
     {{ custom_html | safe }}
     {% elif login_service %}
     <div class="service-login">
-    <h1>Open AiiDA lab demonstrator</h1>
+    <h1>Open AiiDAlab demonstrator</h1>
       <p>
         <i>
        Manage your materials science calculations with <a href="http://www.aiida.net">AiiDA</a> in the cloud.
@@ -48,7 +48,7 @@ data:
       </p>
 
      <p>
-       This AiiDA lab demonstrator is part of the <a href="https://www.materialscloud.org" target="_blank">Materials Cloud</a> and operated by the <a href="https://www.materialscloud.org/team" target="_blank">Materials Cloud team</a>.
+       This AiiDAlab demonstrator is part of the <a href="https://www.materialscloud.org" target="_blank">Materials Cloud</a> and operated by the <a href="https://www.materialscloud.org/team" target="_blank">Materials Cloud team</a>.
      </p>
 
      <p>
