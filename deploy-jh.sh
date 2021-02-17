@@ -2,14 +2,15 @@
 # Use this script to apply updates from config-template.yaml
 set -e
 
-#RELEASE=jhub-ka
-#NAMESPACE=aiidalab
-
-# customize login page
-kubectl apply -f customization/login-cm.yml
+RELEASE=aiidalab
 
 # deploy jupyterhub
 j2 config-template.yaml secrets.yaml > config.yaml
-python combine.py > jupyterhub/values.yaml
-helm template jupyterhub > full.yaml
-kubectl apply -f full.yaml
+
+helm upgrade --install $RELEASE jupyterhub/jupyterhub \
+    --version=0.9.0 \
+    --values config.yaml \
+    --cleanup-on-fail
+
+# customize login page
+kubectl apply -f customization/login-cm.yml
