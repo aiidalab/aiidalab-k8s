@@ -53,16 +53,17 @@ hub:
   db:
     pvc:
       storageClassName: gp2
-  extraConfig: |
-    c.KubeSpawner.http_timeout = 120
-    # phusion init system needs to run as root
-    c.KubeSpawner.uid = 0
-    # Setting the gid was needed to fix 
-    # https://github.com/aiidalab/aiidalab-docker-stack/issues/20
-    c.KubeSpawner.gid = 1000
+  extraConfig:
+    myConfig: |
+      c.KubeSpawner.http_timeout = 300
+      # phusion init system needs to run as root
+      c.KubeSpawner.uid = 0
+      # Setting the gid was needed to fix
+      # https://github.com/aiidalab/aiidalab-docker-stack/issues/20
+      c.KubeSpawner.gid = 1000
 
-    # insert template path for custom login template
-    c.JupyterHub.template_paths.insert(0, "/etc/jupyterhub/templates")
+      # insert template path for custom login template
+      c.JupyterHub.template_paths.insert(0, "/etc/jupyterhub/templates")
 
 #    # overwrite logout handler to also log out of main Materials Cloud site
 #    # https://github.com/jupyterhub/jupyterhub/blob/master/jupyterhub/handlers/login.py#L14
