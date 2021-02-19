@@ -18,7 +18,7 @@ singleuser:
   storage:
     homeMountPath: "/home/aiida"
     dynamic:
-      storageClass: cinder-csi
+      storageClass: aws-efs
   memory:
     limit: 9G
     guarantee: 3G
@@ -52,7 +52,7 @@ hub:
 #    OAUTH_CALLBACK_URL: "{{ jh_host }}/hub/oauth_callback"
   db:
     pvc:
-      storageClassName: cinder-csi
+      storageClassName: gp2
   extraConfig: |
     c.KubeSpawner.http_timeout = 120
     # phusion init system needs to run as root
