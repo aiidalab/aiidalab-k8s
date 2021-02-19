@@ -1,5 +1,7 @@
 proxy:
     secretToken: "{{ secret_token }}"
+    https:
+      enabled: false
 
 singleuser:
   image:
