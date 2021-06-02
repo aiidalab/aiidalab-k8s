@@ -13,6 +13,9 @@ The AiiDAlab setup is based on [z2jh](https://zero-to-jupyterhub.readthedocs.io/
 
 This sets up the environment of your local machine for deployment.
 
+*Note: The instructions below assume that you already you have a kubernetes cluster available for the deployment of AiiDAlab.*
+*However, you can use [terraform](./terraform/README.md) to setup a cluster suitable for an AiiDAlab (JupyterHub) deployment if needed.*
+
 ### Setup kubernetes
 
 * Download kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl
