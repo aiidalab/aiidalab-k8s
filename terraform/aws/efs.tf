@@ -43,9 +43,9 @@ resource "kubernetes_namespace" "support" {
 resource "helm_release" "efs-provisioner" {
   name = "efs-provisioner"
   namespace = kubernetes_namespace.support.metadata.0.name
-  repository = "https://charts.helm.sh/stable/"
+  repository = "https://isotoma.github.io/charts"
   chart = "efs-provisioner"
-  version = "0.11.0"
+  version = "0.13.3"
 
   set{
     name = "efsProvisioner.efsFileSystemId"

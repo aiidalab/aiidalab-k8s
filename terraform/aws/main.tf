@@ -20,7 +20,6 @@ provider "kubernetes" {
   host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
   token                  = data.aws_eks_cluster_auth.cluster.token
-  load_config_file       = false
 }
 
 data "aws_availability_zones" "available" {
@@ -28,7 +27,7 @@ data "aws_availability_zones" "available" {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 2.6"
+  version = "~> 2.78.0"
 
   name                 = var.vpc_name
   cidr                 = "172.16.0.0/16"
@@ -61,9 +60,9 @@ module "vpc" {
 
 module "eks" {
   source          = "terraform-aws-modules/eks/aws"
-  version         = "12.2.0"
+  version         = "~> 16.2.0" 
   cluster_name    = var.cluster_name
-  cluster_version = "1.15"
+  cluster_version = var.eks_kubernetes_version
 
   subnets         = module.vpc.private_subnets
   vpc_id          = module.vpc.vpc_id
@@ -91,7 +90,7 @@ module "eks" {
       subnets                 = [module.vpc.private_subnets[0]]
 
       # Use this to set labels / taints
-      kubelet_extra_args      = "--node-labels=node-role.kubernetes.io/core=core,hub.jupyter.org/node-purpose=core"
+      kubelet_extra_args      = "--node-labels=node.kubernetes.io/core=core,hub.jupyter.org/node-purpose=core"
       
       tags = [
         {
@@ -113,14 +112,14 @@ module "eks" {
       name                    = "user-mixed-demand-spot"
       override_instance_types = ["m5.2xlarge", "m4.2xlarge"]
       spot_instance_pools     = 2
-      on_demand_base_capacity = 5
-      on_demand_percentage_above_base_capacity = 25
+      on_demand_base_capacity = 15
+      on_demand_percentage_above_base_capacity = 0
       asg_min_size            = 0
-      asg_max_size            = 5
+      asg_max_size            = 25
       asg_desired_capacity    = 0
 
       # Use this to set labels / taints
-      kubelet_extra_args = "--node-labels=node-role.kubernetes.io/user=user,hub.jupyter.org/node-purpose=user --register-with-taints hub.jupyter.org/dedicated=user:NoSchedule"
+      kubelet_extra_args = "--node-labels=node.kubernetes.io/user=user,hub.jupyter.org/node-purpose=user --register-with-taints hub.jupyter.org/dedicated=user:NoSchedule"
 
       tags = [
         {
@@ -149,12 +148,12 @@ module "eks" {
       name                    = "worker-spot"
       override_instance_types = ["r5.2xlarge", "r4.2xlarge"]
       spot_instance_pools     = 2
-      asg_max_size            = 5
+      asg_max_size            = 15
       asg_min_size            = 0
       asg_desired_capacity    = 0
 
       # Use this to set labels / taints
-      kubelet_extra_args = "--node-labels node-role.kubernetes.io/worker=worker,k8s.dask.org/node-purpose=worker --register-with-taints k8s.dask.org/dedicated=worker:NoSchedule"
+      kubelet_extra_args = "--node-labels node.kubernetes.io/worker=worker,k8s.dask.org/node-purpose=worker --register-with-taints k8s.dask.org/dedicated=worker:NoSchedule"
 
       tags = [
         {
