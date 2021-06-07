@@ -1,5 +1,5 @@
 # Put your cluster where your data is
-region = "eu-west-1"
+region = "eu-north-1"
 
 # Put the profile you will use for awcli
 profile = "terraform-bot"
