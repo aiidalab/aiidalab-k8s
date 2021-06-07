@@ -33,9 +33,6 @@ auth:
     className: firstuseauthenticator.FirstUseAuthenticator
     config:
       create_users: True
-  admin:
-    users:
-      - {{ adminuser }}
 
 ## OIDC example 
 #  type: custom
