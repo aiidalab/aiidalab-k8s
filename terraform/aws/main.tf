@@ -86,7 +86,7 @@ module "eks" {
       asg_max_size            = 1
       asg_min_size            = 1
       asg_desired_capacity    = 1
-      instance_type           = "t3a.medium"
+      instance_type           = "t3.medium"
       subnets                 = [module.vpc.private_subnets[0]]
 
       # Use this to set labels / taints
