@@ -69,11 +69,9 @@ resource "helm_release" "cluster-autoscaler" {
   name        = "cluster-autoscaler"
   # Check that this is good, kube-system should already exist
   namespace   = "kube-system"
-#  repository  = "https://kubernetes.github.io/autoscaler"
-  repository  = "https://charts.helm.sh/stable/"
+  repository  = "https://kubernetes.github.io/autoscaler"
   chart       = "cluster-autoscaler"
-  version     = "8.0.0"
-#  version     = "~> 9.0.0"
+  version     = "~> 9.9.0"
 
   # Terraform keeps this in state, so we get it automatically!
   set{
