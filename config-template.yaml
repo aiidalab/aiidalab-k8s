@@ -7,7 +7,7 @@ singleuser:
   image:
     name: aiidalab/aiidalab-docker-stack
     #tag: latest
-    tag: 20.02.2
+    tag: 21.02.1
     pullPolicy: Always
   fsGid: 1000
   cmd: /sbin/my_my_init
@@ -28,6 +28,7 @@ singleuser:
   startTimeout: 180
 
 auth:
+  type: custom
   custom:
     className: firstuseauthenticator.FirstUseAuthenticator
     config:

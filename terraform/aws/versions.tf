@@ -5,11 +5,11 @@ terraform {
     }
     helm = {
       source = "hashicorp/helm"
-      version = "~> 2.0"
+      version = "~> 2.1.2"
     }
     kubernetes = {
       source = "hashicorp/kubernetes"
-      version = "~> 1.11.1"
+      version = "~> 2.2.0"
     }
     template = {
       source = "hashicorp/template"
@@ -17,4 +17,8 @@ terraform {
     }
   }
   required_version = ">= 0.13"
+}
+
+variable "eks_kubernetes_version" {
+  default = "1.20"
 }
