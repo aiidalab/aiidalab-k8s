@@ -1,0 +1,55 @@
+---
+_subdirectory: template
+
+deployment_name:
+    type: str
+    help: Please provide a name for this deployment.
+    default: aiidalab
+
+image:
+    type: str
+    help: Please specify which image you want to deploy.
+    default: docker.io/aiidalab/full-stack
+
+version:
+    type: str
+    help: |
+        Please specify which version you want to deploy.
+        For example 'latest' for the latest regular release.
+    default: latest
+
+pullPolicy:
+    type: str
+    choices:
+        - Always
+        - IfNotPresent
+        - Never
+    default: Always
+    help: |
+        Specify the image pull policy. We recommend to use 'Always' in most cases,
+        'IfNotPresent' when a specific image release version is selected, and
+        'Never' for images built locally.
+
+registry_credentials:
+    type: bool
+    help: |
+        Do you want to provide credentials for a special registry?
+        For example the GitHub container registry (ghcr.io)
+    default: false
+
+registry_url:
+    type: str
+    help: The name of the registry.
+    placeholder: ghcr.io
+    when: "{{ registry_credentials }}"
+
+registry_username:
+    type: str
+    help: The username for the registry credentials.
+    when: "{{ registry_credentials }}"
+
+registry_password:
+    type: str
+    secret: true
+    help: The password for the registry credentials.
+    when: "{{ registry_credentials }}"
