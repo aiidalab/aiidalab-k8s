@@ -1,5 +1,5 @@
 # There are several ways that we could implement a minimal policy set
-# The minimal policy set is found here: 
+# The minimal policy set is found here:
 # https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/docs/iam-permissions.md
 
 provider "aws" {
@@ -192,4 +192,4 @@ data "aws_iam_policy_document" "terraform_iam_policy_source" {
 
     resources = ["*"]
   }
-} 
+}

@@ -20,7 +20,7 @@ This sets up the environment of your local machine for deployment.
 
 * Download kubectl: https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl
 * Follow instructions of your kubernetes provider in order to authenticate. `kubectl get pods` should work
-* Download `helm`: https://github.com/helm/helm/releases 
+* Download `helm`: https://github.com/helm/helm/releases
   Note: Only needed locally. Your kuberenetes cluster does not need to support `helm`
 
 ### Clone repository and prepare Python environment

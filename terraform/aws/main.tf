@@ -60,7 +60,7 @@ module "vpc" {
 
 module "eks" {
   source          = "terraform-aws-modules/eks/aws"
-  version         = "~> 16.2.0" 
+  version         = "~> 16.2.0"
   cluster_name    = var.cluster_name
   cluster_version = var.eks_kubernetes_version
 
@@ -91,7 +91,7 @@ module "eks" {
 
       # Use this to set labels / taints
       kubelet_extra_args      = "--node-labels=node.kubernetes.io/core=core,hub.jupyter.org/node-purpose=core"
-      
+
       tags = [
         {
           "key"                 = "k8s.io/cluster-autoscaler/enabled"
@@ -123,12 +123,12 @@ module "eks" {
 
       tags = [
         {
-          "key"                 = "k8s.io/cluster-autoscaler/node-template/label/hub.jupyter.org/node-purpose" 
+          "key"                 = "k8s.io/cluster-autoscaler/node-template/label/hub.jupyter.org/node-purpose"
           "propagate_at_launch" = "false"
           "value"               = "user"
         },
         {
-          "key"                 = "k8s.io/cluster-autoscaler/node-template/taint/hub.jupyter.org/dedicated" 
+          "key"                 = "k8s.io/cluster-autoscaler/node-template/taint/hub.jupyter.org/dedicated"
           "propagate_at_launch" = "false"
           "value"               = "user:NoSchedule"
         },
@@ -157,12 +157,12 @@ module "eks" {
 
       tags = [
         {
-          "key"                 = "k8s.io/cluster-autoscaler/node-template/label/k8s.dask.org/node-purpose" 
+          "key"                 = "k8s.io/cluster-autoscaler/node-template/label/k8s.dask.org/node-purpose"
           "propagate_at_launch" = "false"
           "value"               = "worker"
         },
         {
-          "key"                 = "k8s.io/cluster-autoscaler/node-template/taint/k8s.dask.org/dedicated" 
+          "key"                 = "k8s.io/cluster-autoscaler/node-template/taint/k8s.dask.org/dedicated"
           "propagate_at_launch" = "false"
           "value"               = "worker:NoSchedule"
         },
