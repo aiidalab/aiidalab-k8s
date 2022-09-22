@@ -1,0 +1,18 @@
+---
+singleuser:
+    image:
+        name: "{{ image }}"
+        tag: "{{ version }}"
+        pullPolicy: "{{ pullPolicy }}"
+    cmd: start-singleuser.sh
+hub:
+    extraConfig:
+        myConfig: |
+            c.KubeSpawner.http_timeout = 60
+{%- if registry_credentials %}
+imagePullSecret:
+    create: true
+    registry: "{{ registry_url }}"
+    username: "{{ registry_username }}"
+    password: "{{ registry_password }}"
+{%- endif %}
